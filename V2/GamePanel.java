@@ -13,12 +13,17 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int GAME_UNIT= SCREEN_HEIGHT*SCREEN_HEIGHT/UNIT_SIZE;
     static final int DELAY=75;
     final int[] x=new int[GAME_UNIT];
+    final int[] x1=new int[GAME_UNIT];
     final int[] y=new int[GAME_UNIT];
-    int bodyparts=6;
+    final int[] y1=new int[GAME_UNIT];
+    int bodyparts=3;
+    int bodyparts1=3;
     int foodEaten;
+    int foodEaten1;
     int appleX;
     int appleY;
     char direction='R';
+    char direction1='D';
     static boolean running=false;
     Timer timer;
     Random random;
@@ -66,6 +71,16 @@ public class GamePanel extends JPanel implements ActionListener {
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
             }
+            for(int i=0; i<bodyparts1; i++){
+                if(i==0){
+                    g.setColor(Color.RED);
+                    g.fillRect(x1[i], y1[i], UNIT_SIZE, UNIT_SIZE);
+                }
+                else{
+                    g.setColor(new Color(180,45,0));
+                    g.fillRect(x1[i], y1[i], UNIT_SIZE, UNIT_SIZE);
+                }
+            }
         }
         else{gameOver(g);}
         
@@ -82,6 +97,12 @@ public class GamePanel extends JPanel implements ActionListener {
             y[i]=y[i-1];
         }
 
+        for(int i=bodyparts1; i>0; i--){
+            x1[i]=x1[i-1];
+            y1[i]=y1[i-1];
+
+        }
+
         switch (direction){
             case 'U':
                 y[0]= y[0]-UNIT_SIZE;
@@ -96,12 +117,31 @@ public class GamePanel extends JPanel implements ActionListener {
                 x[0]=x[0]+UNIT_SIZE;
                 break;
         }
+        switch (direction1){
+            case 'U':
+                y1[0]= y1[0]-UNIT_SIZE;
+                break;
+            case 'D':
+                y1[0]=y1[0]+UNIT_SIZE;
+                break;
+            case 'L':
+                x1[0]=x1[0]-UNIT_SIZE;
+                break;
+            case 'R':
+                x1[0]=x1[0]+UNIT_SIZE;
+                break;
+        }
         
     }
     public void checkFood(){
         if((x[0]==appleX) && (y[0]==appleY)){
             bodyparts++;
             foodEaten++;
+            newFood();
+        }
+        if((x1[0]==appleX) && (y1[0]==appleY)){
+            bodyparts1++;
+            foodEaten1++;
             newFood();
         }
     }
@@ -112,6 +152,12 @@ public class GamePanel extends JPanel implements ActionListener {
                 running=false;
             }
         }
+        for(int i=bodyparts1; i>0; i--){
+            if((x1[0]==x1[i]) && (y1[0]==y1[i])){
+                running=false;
+            }
+        }
+        
         if(x[0]<0){
             running=false;
         }
@@ -124,13 +170,26 @@ public class GamePanel extends JPanel implements ActionListener {
         if(y[0]>SCREEN_HEIGHT-1){
             running=false;
         }
+
+        if(x1[0]<0){
+            running=false;
+        }
+        if(x1[0]>SCREEN_WIDTH-1){
+            running=false;
+        }
+        if(y1[0]<0){
+            running=false;
+        }
+        if(y1[0]>SCREEN_HEIGHT-1){
+            running=false;
+        }
         if(running==false){
             timer.stop(); 
         }
     }
     
     public void gameOver(Graphics g){
-        JOptionPane.showMessageDialog(null, "Gamer Over! You Scored " + bodyparts+ " Points!");
+        JOptionPane.showMessageDialog(null, "Gamer Over! You Scored " + (foodEaten+foodEaten1)+ " Points!");
     }
 
     public class MyKeyAdapter extends KeyAdapter{
@@ -157,9 +216,30 @@ public class GamePanel extends JPanel implements ActionListener {
                         direction='D';
                         break;
                     }
+                    case KeyEvent.VK_A:
+                    if(direction1!='R'){
+                        direction1='L';
+                        break;
+                    }
+                case KeyEvent.VK_D:
+                    if(direction1!='L'){
+                        direction1='R';
+                        break;
+                    }
+                case KeyEvent.VK_W:
+                    if(direction1!='D'){
+                        direction1='U';
+                        break;
+                    }
+                case KeyEvent.VK_S:
+                    if(direction1!='U'){
+                        direction1='D';
+                        break;
+                    }
                 
             }
         }
+    
     }
 
     @Override
