@@ -40,6 +40,25 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
 
+    public void drawSnake(int[] x, int[] y, int bodyparts, Graphics g, String color){
+        for(int i=0; i<bodyparts; i++){
+            if(i==0){
+                if (color=="GREEN")
+                g.setColor(Color.GREEN);
+                else 
+                g.setColor(Color.RED);
+                g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+            }
+            else{
+                if (color=="GREEN")
+                g.setColor(new Color(45,180,0));
+                else 
+                g.setColor(new Color(180,40,0));
+                g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+            }
+        }
+    }
+
     public void startGame(){
         running=true;
         newFood();
@@ -61,26 +80,8 @@ public class GamePanel extends JPanel implements ActionListener {
             g.setColor(Color.red);
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
 
-            for(int i=0; i<bodyparts; i++){
-                if(i==0){
-                    g.setColor(Color.green);
-                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
-                }
-                else{
-                    g.setColor(new Color(45,180,0));
-                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
-                }
-            }
-            for(int i=0; i<bodyparts1; i++){
-                if(i==0){
-                    g.setColor(Color.RED);
-                    g.fillRect(x1[i], y1[i], UNIT_SIZE, UNIT_SIZE);
-                }
-                else{
-                    g.setColor(new Color(180,45,0));
-                    g.fillRect(x1[i], y1[i], UNIT_SIZE, UNIT_SIZE);
-                }
-            }
+            drawSnake(x, y, bodyparts, g, "GREEN");
+            drawSnake(x1, y1, bodyparts1, g, "RED");
         }
         else{gameOver(g);}
         
@@ -133,31 +134,30 @@ public class GamePanel extends JPanel implements ActionListener {
         }
         
     }
-    public void checkFood(){
+    public int checkSnakeFood(int[] x, int[] y, int bodyparts){
         if((x[0]==appleX) && (y[0]==appleY)){
+            System.out.println(bodyparts);
+            this.foodEaten++;
             bodyparts++;
-            foodEaten++;
             newFood();
         }
-        if((x1[0]==appleX) && (y1[0]==appleY)){
-            bodyparts1++;
-            foodEaten1++;
-            newFood();
-        }
+        return bodyparts;
+    }
+    public void checkFood(){
+        
+        bodyparts=checkSnakeFood(x, y, bodyparts);
+        bodyparts1=checkSnakeFood(x1, y1, bodyparts1);
     }
 
-    public void checkCollision(){
+    public void checkSnakeCollisionBody(int[] x, int[] y, int bodyparts){
         for(int i=bodyparts; i>0; i--){
             if((x[0]==x[i]) && (y[0]==y[i])){
                 running=false;
             }
         }
-        for(int i=bodyparts1; i>0; i--){
-            if((x1[0]==x1[i]) && (y1[0]==y1[i])){
-                running=false;
-            }
-        }
-        
+    }
+
+    public void checkSnakeCollisionWall(int[] x, int[] y, int bodyparts){
         if(x[0]<0){
             running=false;
         }
@@ -171,25 +171,22 @@ public class GamePanel extends JPanel implements ActionListener {
             running=false;
         }
 
-        if(x1[0]<0){
-            running=false;
-        }
-        if(x1[0]>SCREEN_WIDTH-1){
-            running=false;
-        }
-        if(y1[0]<0){
-            running=false;
-        }
-        if(y1[0]>SCREEN_HEIGHT-1){
-            running=false;
-        }
+    }
+
+    public void checkCollision(){
+
+        checkSnakeCollisionBody(x,y,bodyparts);
+        checkSnakeCollisionBody(x1,y1,bodyparts1);
+        checkSnakeCollisionWall(x, y, bodyparts);
+        checkSnakeCollisionWall(x1, y1, bodyparts1);
+
         if(running==false){
             timer.stop(); 
         }
     }
     
     public void gameOver(Graphics g){
-        JOptionPane.showMessageDialog(null, "Gamer Over! You Scored " + (foodEaten+foodEaten1)+ " Points!");
+        JOptionPane.showMessageDialog(null, "Gamer Over! You Scored " + (foodEaten)+ " Points!");
     }
 
     public class MyKeyAdapter extends KeyAdapter{
