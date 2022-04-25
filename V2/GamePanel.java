@@ -187,6 +187,7 @@ public class GamePanel extends JPanel implements ActionListener {
     
     public void gameOver(Graphics g){
         JOptionPane.showMessageDialog(null, "Gamer Over! You Scored " + (foodEaten)+ " Points!");
+        System.exit(0);
     }
 
     public class MyKeyAdapter extends KeyAdapter{
