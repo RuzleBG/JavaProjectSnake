@@ -11,7 +11,7 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT=600;
     static final int UNIT_SIZE=25;
     static final int GAME_UNIT= SCREEN_HEIGHT*SCREEN_HEIGHT/UNIT_SIZE;
-    static final int DELAY=75;
+    static final int DELAY=150;
     final int[] x=new int[GAME_UNIT];
     final int[] x1=new int[GAME_UNIT];
     final int[] y=new int[GAME_UNIT];
@@ -59,6 +59,63 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+    public void moveSnake(int [] x, int[] y, int bodyparts){
+        for(int i=bodyparts; i>0; i--){
+            x[i]=x[i-1];
+            y[i]=y[i-1];
+        }
+    }
+    public void changeDirection(int [] x, int [] y, int direction){
+
+        switch (direction){
+            case 'U':
+                y[0]= y[0]-UNIT_SIZE;
+                break;
+            case 'D':
+                y[0]=y[0]+UNIT_SIZE;
+                break;
+            case 'L':
+                x[0]=x[0]-UNIT_SIZE;
+                break;
+            case 'R':
+                x[0]=x[0]+UNIT_SIZE;
+                break;
+        }
+        
+    }
+    public int checkSnakeFood(int[] x, int[] y, int bodyparts){
+        if((x[0]==appleX) && (y[0]==appleY)){
+            System.out.println(bodyparts);
+            this.foodEaten++;
+            bodyparts++;
+            newFood();
+        }
+        return bodyparts;
+    }
+    public void checkSnakeCollisionBody(int[] x, int[] y, int bodyparts){
+        for(int i=bodyparts; i>0; i--){
+            if((x[0]==x[i]) && (y[0]==y[i])){
+                running=false;
+            }
+        }
+    }
+
+    public void checkSnakeCollisionWall(int[] x, int[] y, int bodyparts){
+        if(x[0]<0){
+            running=false;
+        }
+        if(x[0]>SCREEN_WIDTH-1){
+            running=false;
+        }
+        if(y[0]<0){
+            running=false;
+        }
+        if(y[0]>SCREEN_HEIGHT-1){
+            running=false;
+        }
+
+    }
+
     public void startGame(){
         running=true;
         newFood();
@@ -92,86 +149,20 @@ public class GamePanel extends JPanel implements ActionListener {
         
 
     }
+
     public void move(){
-        for(int i=bodyparts; i>0; i--){
-            x[i]=x[i-1];
-            y[i]=y[i-1];
-        }
-
-        for(int i=bodyparts1; i>0; i--){
-            x1[i]=x1[i-1];
-            y1[i]=y1[i-1];
-
-        }
-
-        switch (direction){
-            case 'U':
-                y[0]= y[0]-UNIT_SIZE;
-                break;
-            case 'D':
-                y[0]=y[0]+UNIT_SIZE;
-                break;
-            case 'L':
-                x[0]=x[0]-UNIT_SIZE;
-                break;
-            case 'R':
-                x[0]=x[0]+UNIT_SIZE;
-                break;
-        }
-        switch (direction1){
-            case 'U':
-                y1[0]= y1[0]-UNIT_SIZE;
-                break;
-            case 'D':
-                y1[0]=y1[0]+UNIT_SIZE;
-                break;
-            case 'L':
-                x1[0]=x1[0]-UNIT_SIZE;
-                break;
-            case 'R':
-                x1[0]=x1[0]+UNIT_SIZE;
-                break;
-        }
-        
+        moveSnake(x, y, bodyparts);
+        moveSnake(x1, y1, bodyparts1);
+        changeDirection(x,y,direction);
+        changeDirection(x1,y1,direction1);
     }
-    public int checkSnakeFood(int[] x, int[] y, int bodyparts){
-        if((x[0]==appleX) && (y[0]==appleY)){
-            System.out.println(bodyparts);
-            this.foodEaten++;
-            bodyparts++;
-            newFood();
-        }
-        return bodyparts;
-    }
+
     public void checkFood(){
         
         bodyparts=checkSnakeFood(x, y, bodyparts);
         bodyparts1=checkSnakeFood(x1, y1, bodyparts1);
     }
 
-    public void checkSnakeCollisionBody(int[] x, int[] y, int bodyparts){
-        for(int i=bodyparts; i>0; i--){
-            if((x[0]==x[i]) && (y[0]==y[i])){
-                running=false;
-            }
-        }
-    }
-
-    public void checkSnakeCollisionWall(int[] x, int[] y, int bodyparts){
-        if(x[0]<0){
-            running=false;
-        }
-        if(x[0]>SCREEN_WIDTH-1){
-            running=false;
-        }
-        if(y[0]<0){
-            running=false;
-        }
-        if(y[0]>SCREEN_HEIGHT-1){
-            running=false;
-        }
-
-    }
 
     public void checkCollision(){
 
@@ -187,6 +178,7 @@ public class GamePanel extends JPanel implements ActionListener {
     
     public void gameOver(Graphics g){
         JOptionPane.showMessageDialog(null, "Gamer Over! You Scored " + (foodEaten)+ " Points!");
+
     }
 
     public class MyKeyAdapter extends KeyAdapter{
